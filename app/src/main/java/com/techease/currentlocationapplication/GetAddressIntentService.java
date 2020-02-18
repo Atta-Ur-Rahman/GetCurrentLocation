@@ -58,7 +58,7 @@ public class GetAddressIntentService extends IntentService {
             Log.e("", "Error in getting address for the location");
         }
 
-        if (addresses == null || addresses.size()  == 0) {
+        if (addresses == null || addresses.size() == 0) {
             msg = "No address found for the location";
             sendResultsToReceiver(1, msg);
         } else {
@@ -91,11 +91,23 @@ public class GetAddressIntentService extends IntentService {
             addressDetails.append(address.getPostalCode());
             addressDetails.append("\n");
 
-            sendResultsToReceiver(2,addressDetails.toString());
+
+            addressDetails.append("Latitude: ");
+            addressDetails.append(address.getLatitude());
+            addressDetails.append("\n");
+
+
+            addressDetails.append("Longitude: ");
+            addressDetails.append(address.getLongitude());
+            addressDetails.append("\n");
+
+            sendResultsToReceiver(2, addressDetails.toString());
         }
     }
+
     //to send results to receiver in the source activity
     private void sendResultsToReceiver(int resultCode, String message) {
+        Log.d("zma location", "get sho");
         Bundle bundle = new Bundle();
         bundle.putString("address_result", message);
         addressResultReceiver.send(resultCode, bundle);

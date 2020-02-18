@@ -24,6 +24,7 @@
         android:lines="10"
         android:gravity="center"
         android:textSize="18sp"
+        android:textIsSelectable="true"
         android:text="Your current location"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"

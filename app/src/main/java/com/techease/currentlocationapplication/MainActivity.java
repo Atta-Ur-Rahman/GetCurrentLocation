@@ -1,6 +1,7 @@
 package com.techease.currentlocationapplication;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Geocoder;
@@ -9,7 +10,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
+import android.provider.Settings;
 import android.speech.tts.TextToSpeech;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -38,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
 
     private LocationAddressResultReceiver addressResultReceiver;
 
-    private TextView currentAddTv;
+    public static TextView currentAddTv;
     private Button btnCurrentLocation;
     private Location currentLocation;
     String strText;
@@ -53,6 +56,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         btnCurrentLocation = findViewById(R.id.btnGetLoction);
         currentAddTv = findViewById(R.id.current_address);
+
+        if (!isLocationEnabled(this)){
+            currentAddTv.setText("turn on your location");
+        }
 
 
         addressResultReceiver = new LocationAddressResultReceiver(new Handler());
@@ -74,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
                 showResults(currentAdd);
             }
         });
+
 
     }
 
@@ -157,6 +165,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             currentAdd = resultData.getString("address_result");
+            currentAddTv.setText(currentAdd);
         }
     }
 
@@ -172,7 +181,7 @@ public class MainActivity extends AppCompatActivity {
                             result == TextToSpeech.LANG_NOT_SUPPORTED) {
                         Log.e("error", "This Language is not supported");
                     } else {
-                        ConvertTextToSpeech();
+//                        ConvertTextToSpeech();
                     }
                 } else
                     Log.e("error", "Initilization Failed!");
@@ -205,5 +214,31 @@ public class MainActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         fusedLocationClient.removeLocationUpdates(locationCallback);
+    }
+
+
+
+
+    public static boolean isLocationEnabled(Context context) {
+        int locationMode = 0;
+        String locationProviders;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT){
+            try {
+                locationMode = Settings.Secure.getInt(context.getContentResolver(), Settings.Secure.LOCATION_MODE);
+
+            } catch (Settings.SettingNotFoundException e) {
+                e.printStackTrace();
+                return false;
+            }
+
+            return locationMode != Settings.Secure.LOCATION_MODE_OFF;
+
+        }else{
+            locationProviders = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
+            return !TextUtils.isEmpty(locationProviders);
+        }
+
+
     }
 }
